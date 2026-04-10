@@ -21,6 +21,9 @@ concurrency:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      DEVKITPRO: C:\devkitPro
+      DEVKITARM: C:\devkitPro\devkitARM
 
     strategy:
       matrix:
@@ -30,22 +33,40 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
 
+    - name: Install devkitPro toolchain
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+        $installerUrl = 'https://github.com/devkitPro/installer/releases/download/v3.0.3/devkitProUpdater-3.0.3.exe'
+        $installerPath = Join-Path $env:RUNNER_TEMP 'devkitProUpdater-3.0.3.exe'
+
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -ArgumentList '/S', '/D=C:\devkitPro' -Wait -NoNewWindow
+
+        $pacman = Join-Path $env:DEVKITPRO 'msys2\usr\bin\pacman.exe'
+        & $pacman -Sy --noconfirm --needed 3ds-dev 3ds-portlibs
+        if ($LASTEXITCODE -ne 0) {
+          throw "pacman failed with exit code $LASTEXITCODE"
+        }
+
     - name: Setup CMake
       uses: lukka/get-cmake@latest
 
     - name: Verify 3DS toolchain
       shell: pwsh
       run: |
-        $devkitPro = if ($env:DEVKITPRO) { $env:DEVKITPRO } else { 'C:\devkitPro' }
+        $devkitPro = $env:DEVKITPRO
         $required = @(
           Join-Path $devkitPro 'devkitARM\bin\arm-none-eabi-g++.exe',
           Join-Path $devkitPro 'tools\bin\3dsxtool.exe',
           Join-Path $devkitPro 'tools\bin\smdhtool.exe',
-          'C:\tools\makerom.exe'
+          Join-Path $devkitPro 'tools\bin\makerom.exe'
         )
         foreach ($tool in $required) {
           if (!(Test-Path $tool)) {
-            throw "Missing required 3DS tool: $tool. Install devkitPro (devkitARM + 3ds-dev + 3dstools) and makerom before running this workflow."
+            throw "Missing required 3DS tool: $tool. The devkitPro install step did not complete successfully."
           }
         }
 
