@@ -212,19 +212,23 @@ Persistent files are bind-mounted to host:
 
 ## Build & Run
 
-1. Install [Visual Studio 2022](https://aka.ms/vs/17/release/vs_community.exe) or [newer](https://visualstudio.microsoft.com/downloads/).
-2. Clone the repository.
-3. Open the project folder from Visual Studio.
-4. Set the build configuration to **Windows64 - Debug** (Release is also ok but missing some debug features), then build and run.
+### Nintendo 3DS build
 
-### CMake (Windows x64)
+1. Install the 64-bit [devkitPro installer](https://github.com/devkitPro/installer/releases/latest) and make sure it sets `DEVKITPRO` and `DEVKITARM`.
+2. Install the 3DS packages with devkitPro pacman: `3ds-dev` and `3dstools`.
+3. Make sure `makerom.exe` is available on your PATH or in `C:\tools\makerom.exe`.
+4. Clone the repository.
+5. Run the 3DS build script:
 
 ```powershell
-cmake --preset windows64
-cmake --build --preset windows64-debug --target Minecraft.Client
+.\build-3ds.bat
 ```
 
-For more information, see [COMPILE.md](COMPILE.md).
+6. Install `build\3ds\Minecraft.Client\Debug\Minecraft3DS.cia` on a real 3DS, or launch `Minecraft3DS.3ds` in an emulator.
+
+### Windows build
+
+The Windows64 target is still available for the desktop client and dedicated server. For those instructions, see [COMPILE.md](COMPILE.md).
 
 ## Star History
 

@@ -1,4 +1,4 @@
-name: Nightly Release
+name: Nightly 3DS Release
 
 on:
   workflow_dispatch: 
@@ -24,42 +24,48 @@ jobs:
 
     strategy:
       matrix:
-        platform: [Windows64]
+        platform: [3DS]
 
     steps:
     - name: Checkout
       uses: actions/checkout@v6
 
-    - name: Set platform lowercase
-      run: echo "MATRIX_PLATFORM=$('${{ matrix.platform }}'.ToLower())" >> $env:GITHUB_ENV
-
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-
     - name: Setup CMake
       uses: lukka/get-cmake@latest
-    
-    - name: Run CMake
-      uses: lukka/run-cmake@v10
-      env:
-        VCPKG_ROOT: "" # Disable vcpkg for CI builds
-      with:
-        configurePreset: ${{ env.MATRIX_PLATFORM }}
-        buildPreset: ${{ env.MATRIX_PLATFORM }}-release
-        buildPresetAdditionalArgs: "['--target', 'Minecraft.Client']"
+
+    - name: Verify 3DS toolchain
+      shell: pwsh
+      run: |
+        $devkitPro = if ($env:DEVKITPRO) { $env:DEVKITPRO } else { 'C:\devkitPro' }
+        $required = @(
+          Join-Path $devkitPro 'devkitARM\bin\arm-none-eabi-g++.exe',
+          Join-Path $devkitPro 'tools\bin\3dsxtool.exe',
+          Join-Path $devkitPro 'tools\bin\smdhtool.exe',
+          'C:\tools\makerom.exe'
+        )
+        foreach ($tool in $required) {
+          if (!(Test-Path $tool)) {
+            throw "Missing required 3DS tool: $tool. Install devkitPro (devkitARM + 3ds-dev + 3dstools) and makerom before running this workflow."
+          }
+        }
+
+    - name: Build 3DS title
+      shell: cmd
+      run: build-3ds.bat
 
     - name: Zip Build
-      run: 7z a -r LCE${{ matrix.platform }}.zip ./build/${{ env.MATRIX_PLATFORM }}/Minecraft.Client/Release/* "-x!*.ipdb" "-x!*.iobj"
+      shell: pwsh
+      run: |
+        7z a -r LCE${{ matrix.platform }}.zip `
+          .\build\3ds\Minecraft.Client\Debug\Minecraft3DS.cia `
+          .\build\3ds\Minecraft.Client\Debug\Minecraft3DS.3ds `
+          .\build\3ds\Minecraft.Client\Debug\Minecraft3DS.3dsx `
+          .\build\3ds\Minecraft3DS.ncch
 
     - name: Stage artifacts
       run: |
         New-Item -ItemType Directory -Force -Path staging
         Copy-Item LCE${{ matrix.platform }}.zip staging/
-
-    - name: Stage exe and pdb
-      if: matrix.platform == 'Windows64'
-      run: |
-        Copy-Item ./build/${{ env.MATRIX_PLATFORM }}/Minecraft.Client/Release/Minecraft.Client.exe staging/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v6
@@ -84,12 +90,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: nightly
-        name: Nightly Client Release
+        name: Nightly 3DS Release
         body: |
-          Requires at least Windows 7 and DirectX 11 compatible GPU to run.
+          Install the CIA on a real 3DS or use the .3ds image in an emulator.
           
           # 🚨 First time here? 🚨
-          If you've never downloaded the game before, you need to download `LCEWindows64.zip` and extract it to the folder where you'd like to keep the game. The other files are included in this `.zip` file!
+          If you've never downloaded the game before, you need to download `LCE3DS.zip` and extract it somewhere convenient. The archive contains the CIA, 3DS, 3DSX, and NCCH outputs.
         files: |
           artifacts/*
 

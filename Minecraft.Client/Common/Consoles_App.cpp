@@ -329,6 +329,12 @@ LPCWSTR CMinecraftApp::GetString(int iID)
 {
 	//return L"Değişiklikler ve Yenilikler";
 	//return L"ÕÕÕÕÖÖÖÖ";
+	if (app.m_stringTable == nullptr)
+	{
+		static const wchar_t g_emptyString[] = L"";
+		return g_emptyString;
+	}
+
 	return app.m_stringTable->getString(iID);
 }
 
@@ -4431,6 +4437,8 @@ void CMinecraftApp::loadMediaArchive()
 	mediapath = L"Common\\Media\\MediaDurango.arc";
 #elif __PSVITA__
 	mediapath = L"Common\\Media\\MediaPSVita.arc";
+#elif __3DS__
+	mediapath = L"Common\\Media\\MediaWindows64.arc";
 #endif
 
 	if (!mediapath.empty())
@@ -4487,6 +4495,12 @@ void CMinecraftApp::loadStringTable()
 		// we need to unload the current string table, this is a reload
 		delete m_stringTable;
 	}
+	if (m_mediaArchive == nullptr)
+	{
+		app.DebugPrintf("loadStringTable called before media archive was loaded\n");
+		m_stringTable = nullptr;
+		return;
+	}
 	wstring localisationFile = L"languages.loc";
 	if (m_mediaArchive->hasFile(localisationFile))
 	{
@@ -4497,8 +4511,7 @@ void CMinecraftApp::loadStringTable()
 	else
 	{
 		m_stringTable = nullptr;
-		assert(false);
-		// AHHHHHHHHH.
+		app.DebugPrintf("Missing languages.loc in media archive\n");
 	}
 #endif
 }

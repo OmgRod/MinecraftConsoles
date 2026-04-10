@@ -1,5 +1,31 @@
 # Compile Instructions
 
+## Nintendo 3DS
+
+This build path produces a proper CTR title pipeline (`.ncch`, `.cia`, and `.3ds`) using devkitPro and makerom.
+
+1. Install the 64-bit [devkitPro installer](https://github.com/devkitPro/installer/releases/latest).
+2. Install the 3DS packages with devkitPro pacman:
+  - `3ds-dev`
+  - `3dstools`
+3. Install or provide `makerom.exe` on your PATH. The build scripts look for `C:\tools\makerom.exe` first.
+4. Make sure `DEVKITPRO` and `DEVKITARM` are set in your shell before configuring CMake.
+
+Build the 3DS title:
+
+```powershell
+.\build-3ds.bat
+```
+
+If you want to run the build steps manually:
+
+```powershell
+cmake --preset 3ds
+cmake --build --preset 3ds-debug --target Minecraft_Client_cia Minecraft_Client_cci Minecraft_Client_3dsx
+```
+
+Artifacts are written under `build\3ds\Minecraft.Client\Debug\`.
+
 ## Visual Studio
 
 1. Clone or download the repository

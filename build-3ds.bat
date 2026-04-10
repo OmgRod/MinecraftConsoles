@@ -2,7 +2,12 @@
 setlocal
 
 set "ROOT_DIR=%~dp0"
-set "DEVKITARM=C:\devkitPro\devkitARM"
+if defined DEVKITPRO (
+  set "DEVKITARM=%DEVKITPRO%\devkitARM"
+) else (
+  set "DEVKITPRO=C:\devkitPro"
+  set "DEVKITARM=%DEVKITPRO%\devkitARM"
+)
 set "BUILD_DIR=%ROOT_DIR%build\3ds"
 set "CMAKE_EXE=C:\Program Files\CMake\bin\cmake.exe"
 set "SNAPSHOT_FILE=%BUILD_DIR%\.source_glob_snapshot.txt"
@@ -42,7 +47,7 @@ if not exist "%SNAPSHOT_FILE%" (
 )
 
 pushd "%ROOT_DIR%"
-"%CMAKE_EXE%" --build "%BUILD_DIR%" --config Debug -- -j 1
+"%CMAKE_EXE%" --build "%BUILD_DIR%" --config Debug --target Minecraft_Client_cia Minecraft_Client_cci Minecraft_Client_3dsx -- -j 1
 set "EXIT_CODE=%ERRORLEVEL%"
 popd
 

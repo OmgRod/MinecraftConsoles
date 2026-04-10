@@ -38,6 +38,12 @@ target_include_directories(Minecraft.Client PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/Iggy/include"
   "${CMAKE_SOURCE_DIR}/include/"
 )
+
+if(PLATFORM_NAME STREQUAL "3DS" AND DEFINED ENV{DEVKITPRO})
+  target_include_directories(Minecraft.Client PRIVATE
+    "$ENV{DEVKITPRO}/libctru/include"
+  )
+endif()
 target_compile_definitions(Minecraft.Client PRIVATE
   ${MINECRAFT_SHARED_DEFINES}
 )
@@ -63,6 +69,19 @@ if(PLATFORM_NAME STREQUAL "Windows64")
     wsock32
     legacy_stdio_definitions
   )
+endif()
+
+if(PLATFORM_NAME STREQUAL "3DS")
+  if(DEFINED ENV{DEVKITPRO})
+    target_link_libraries(Minecraft.Client PRIVATE
+      $<$<CONFIG:Debug>:$ENV{DEVKITPRO}/libctru/lib/libctrud.a>
+      $<$<NOT:$<CONFIG:Debug>>:$ENV{DEVKITPRO}/libctru/lib/libctru.a>
+    )
+  else()
+    target_link_libraries(Minecraft.Client PRIVATE
+      ctru
+    )
+  endif()
 endif()
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/4JLibs/libs")
@@ -103,9 +122,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}Media")
     "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}Media"  "${PLATFORM_NAME}Media"
   )
 endif()
-if(NOT PLATFORM_NAME STREQUAL "3DS")
-  setup_asset_folder_copy(Minecraft.Client "${ASSET_FOLDER_PAIRS}")
-endif()
+setup_asset_folder_copy(Minecraft.Client "${ASSET_FOLDER_PAIRS}")
 
 # Copy redist files
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/Iggy/lib/redist64")

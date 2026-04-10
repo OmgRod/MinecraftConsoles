@@ -30,6 +30,10 @@ function(setup_asset_folder_copy TARGET_NAME ASSET_FOLDER_PAIRS)
 
   # Exclude all platform media files except the one for the current platform
   foreach(media_file IN LISTS PLATFORM_MEDIA_FILES)
+    if(PLATFORM_NAME STREQUAL "3DS" AND media_file STREQUAL "MediaWindows64.arc")
+      continue()
+    endif()
+
     if(NOT media_file MATCHES "Media${PLATFORM_NAME}\\.arc")
       list(APPEND ASSET_EXCLUDE_FILES "${media_file}")
     endif()

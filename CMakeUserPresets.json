@@ -1,0 +1,23 @@
+{
+  "version": 5,
+  "configurePresets": [
+    {
+      "name": "3ds-full",
+      "inherits": "3ds",
+      "cacheVariables": {
+        "MCLCE_3DS_BUILD_FULL": "ON"
+      },
+      "environment": {
+        "CC": "C:/devkitPro/devkitARM/bin/arm-none-eabi-gcc.exe",
+        "CXX": "C:/devkitPro/devkitARM/bin/arm-none-eabi-g++.exe"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "3ds-full-debug",
+      "configurePreset": "3ds-full",
+      "configuration": "Debug"
+    }
+  ]
+}

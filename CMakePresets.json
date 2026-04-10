@@ -73,7 +73,6 @@
         "PLATFORM_DEFINES": "__3DS__",
         "PLATFORM_NAME": "3DS",
         "MCLCE_3DS_BUILD_FULL": "ON",
-        "CMAKE_DISABLE_PRECOMPILE_HEADERS": "ON",
         "CMAKE_C_FLAGS_DEBUG": "-g0",
         "CMAKE_CXX_FLAGS_DEBUG": "-g0"
       }

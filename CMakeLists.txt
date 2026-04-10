@@ -68,6 +68,143 @@ function(configure_compiler_target target)
   endif()
 endfunction()
 
+function(configure_3ds_packaging target output_basename)
+  string(REPLACE "." "_" _mclce_pkg_target_base "${target}")
+
+  find_program(MAKEROM
+    NAMES makerom makerom.exe
+    HINTS "${DEVKITPRO}/tools/bin"
+  )
+
+  if(NOT MAKEROM)
+    message(FATAL_ERROR "makerom not found")
+  endif()
+
+  set(_MCLCE_3DS_ROMFS_ROOT "${CMAKE_CURRENT_BINARY_DIR}/minecraft3ds_romfs_root")
+  file(TO_CMAKE_PATH "${_MCLCE_3DS_ROMFS_ROOT}" _MCLCE_3DS_ROMFS_ROOT_CMAKE)
+
+  set(_MCLCE_3DS_ROMFS_ASSET_PAIRS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/music"           "music"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/Common/Media"    "Common/Media"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/Common/res"      "Common/res"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/Common/Trial"    "Common/Trial"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/Common/Tutorial" "Common/Tutorial"
+  )
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/${PLATFORM_NAME}Media")
+    list(APPEND _MCLCE_3DS_ROMFS_ASSET_PAIRS
+      "${CMAKE_CURRENT_SOURCE_DIR}/Minecraft.Client/${PLATFORM_NAME}Media" "${PLATFORM_NAME}Media"
+    )
+  endif()
+
+  # --- RSF ---
+  set(_MCLCE_3DS_RSF "${CMAKE_CURRENT_BINARY_DIR}/minecraft3ds.rsf")
+  file(WRITE "${_MCLCE_3DS_RSF}" "
+SystemControlInfo:
+  StackSize: 0x00040000
+  SaveDataSize: 0
+  JumpId: 0
+
+AccessControlInfo:
+  CoreVersion: 2
+  Priority: 64
+  IdealProcessor: 0
+  AffinityMask: 1
+  HandleTableSize: 0x200
+  MemoryType: Application
+  SystemMode: 64MB
+  EnableL2Cache: true
+
+  FileSystemAccess:
+    - \"fs:USER\"
+
+  ServiceAccessControl:
+    - \"apt:u\"
+    - \"fs:USER\"
+    - \"hid:USER\"
+    - \"gfx:USER\"
+
+  SystemCallAccess:
+    - \"svcBreak\"
+    - \"svcSleepThread\"
+    - \"svcGetSystemTick\"
+
+RomFs:
+  RootPath: \"${_MCLCE_3DS_ROMFS_ROOT_CMAKE}\"
+")
+
+  add_custom_target(${_mclce_pkg_target_base}_romfs_root ALL
+    COMMAND ${CMAKE_COMMAND} -E rm -rf "${_MCLCE_3DS_ROMFS_ROOT}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${_MCLCE_3DS_ROMFS_ROOT}"
+  )
+
+  list(LENGTH _MCLCE_3DS_ROMFS_ASSET_PAIRS _mclce_romfs_pair_count)
+  math(EXPR _mclce_romfs_last_pair "${_mclce_romfs_pair_count} - 1")
+  foreach(i RANGE 0 ${_mclce_romfs_last_pair} 2)
+    math(EXPR j "${i} + 1")
+    list(GET _MCLCE_3DS_ROMFS_ASSET_PAIRS ${i} src)
+    list(GET _MCLCE_3DS_ROMFS_ASSET_PAIRS ${j} dest)
+    list(APPEND _mclce_pkg_target_romfs_commands
+      COMMAND ${CMAKE_COMMAND}
+        "-DCOPY_SOURCE=${src}"
+        "-DCOPY_DEST=${_MCLCE_3DS_ROMFS_ROOT}/${dest}"
+        -P "${CMAKE_SOURCE_DIR}/cmake/CopyFolderScript.cmake"
+    )
+  endforeach()
+
+  if(DEFINED _mclce_pkg_target_romfs_commands)
+    add_custom_target(${_mclce_pkg_target_base}_romfs_copy ALL
+      ${_mclce_pkg_target_romfs_commands}
+      COMMENT "Staging RomFS root for ${output_basename}..."
+      VERBATIM
+    )
+    add_dependencies(${_mclce_pkg_target_base}_romfs_copy ${_mclce_pkg_target_base}_romfs_root)
+    set_property(TARGET ${_mclce_pkg_target_base}_romfs_copy PROPERTY FOLDER "Build")
+  endif()
+
+  # --- OUTPUT PATHS ---
+  set(_MCLCE_NCCH_OUT "${CMAKE_CURRENT_BINARY_DIR}/${output_basename}.ncch")
+  set(_MCLCE_CIA_OUT  "$<TARGET_FILE_DIR:${target}>/${output_basename}.cia")
+  set(_MCLCE_3DS_OUT  "$<TARGET_FILE_DIR:${target}>/${output_basename}.3ds")
+
+  # --- NCCH ---
+  add_custom_target(${_mclce_pkg_target_base}_cxi ALL
+    COMMAND ${MAKEROM}
+      -f cxi
+      -o "${_MCLCE_NCCH_OUT}"
+      -elf "$<TARGET_FILE:${target}>"
+      -rsf "${_MCLCE_3DS_RSF}"
+      -exefslogo
+    DEPENDS ${target}
+    COMMENT "Generating ${output_basename}.cxi"
+    VERBATIM
+  )
+  if(TARGET ${_mclce_pkg_target_base}_romfs_copy)
+    add_dependencies(${_mclce_pkg_target_base}_cxi ${_mclce_pkg_target_base}_romfs_copy)
+  endif()
+
+  # --- CIA ---
+  add_custom_target(${_mclce_pkg_target_base}_cia ALL
+    COMMAND ${MAKEROM}
+      -f cia
+      -o "${_MCLCE_CIA_OUT}"
+      -content "${_MCLCE_NCCH_OUT}:0:0:0"
+    DEPENDS ${_mclce_pkg_target_base}_ncch
+    COMMENT "Generating ${output_basename}.cia"
+    VERBATIM
+  )
+
+  # --- 3DS ---
+  add_custom_target(${_mclce_pkg_target_base}_cci ALL
+    COMMAND ${MAKEROM}
+      -f cci
+      -o "${_MCLCE_3DS_OUT}"
+      -content "${_MCLCE_NCCH_OUT}:0:0:0"
+    DEPENDS ${_mclce_pkg_target_base}_cxi
+    COMMENT "Generating ${output_basename}.3ds"
+    VERBATIM
+  )
+endfunction()
+
 
 # ---
 # Configuration
@@ -121,6 +258,8 @@ if(PLATFORM_NAME STREQUAL "3DS" AND NOT MCLCE_3DS_BUILD_FULL)
       DEPENDS "${MINECRAFT_3DSX_OUTPUT}"
     )
     set_property(TARGET Minecraft.3DSX PROPERTY FOLDER "Build")
+
+    configure_3ds_packaging(Minecraft.3DS Minecraft3DS)
   endif()
 else()
   add_subdirectory(Minecraft.World)

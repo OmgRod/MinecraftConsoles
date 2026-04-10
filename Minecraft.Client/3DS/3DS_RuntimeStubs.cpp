@@ -1,9 +1,51 @@
 #include "..\stdafx.h"
+#ifdef ERROR_SUCCESS
+#undef ERROR_SUCCESS
+#endif
+#include <3ds.h>
+#include <cstdlib>
 
-extern "C" void *__aeabi_read_tp()
+static bool g_3dsVideoInitialised = false;
+
+static void Log3DS(const char *msg)
 {
-	static int tls_stub = 0;
-	return &tls_stub;
+	if (msg == nullptr)
+	{
+		return;
+	}
+	printf("%s\n", msg);
+	svcOutputDebugString(msg, strlen(msg));
+}
+
+extern "C" void __assert_func(const char *file, int line, const char *func, const char *expr)
+{
+	char buffer[512];
+	const char *safeFile = (file != nullptr) ? file : "<null-file>";
+	const char *safeFunc = (func != nullptr) ? func : "<null-func>";
+	const char *safeExpr = (expr != nullptr) ? expr : "<null-expr>";
+	snprintf(buffer, sizeof(buffer), "[3DS][ASSERT] %s:%d %s :: %s", safeFile, line, safeFunc, safeExpr);
+	Log3DS(buffer);
+
+	// Prefer a clean process exit over triggering an SVC PANIC.
+	if (g_3dsVideoInitialised)
+	{
+		gfxExit();
+		g_3dsVideoInitialised = false;
+	}
+	svcExitProcess();
+	while (true) {}
+}
+
+extern "C" void abort(void)
+{
+	Log3DS("[3DS][ABORT] abort() called");
+	if (g_3dsVideoInitialised)
+	{
+		gfxExit();
+		g_3dsVideoInitialised = false;
+	}
+	svcExitProcess();
+	while (true) {}
 }
 
 void MemSect(int section)
@@ -46,8 +88,15 @@ C4JStorage StorageManager;
 CConsoleMinecraftApp app;
 ConsoleUIController ui;
 
-extern "C" int __system_argc = 0;
-extern "C" char **__system_argv = nullptr;
+static void Ensure3DSVideoInitialised()
+{
+	if (!g_3dsVideoInitialised)
+	{
+		gfxInitDefault();
+		consoleInit(GFX_TOP, nullptr);
+		g_3dsVideoInitialised = true;
+	}
+}
 
 extern "C" void initSystem()
 {
@@ -93,12 +142,81 @@ void ConsoleUIController::beginIggyCustomDraw4J(IggyCustomDrawCallbackRegion *, 
 CustomDrawData *ConsoleUIController::setupCustomDraw(UIScene *, IggyCustomDrawCallbackRegion *) { return nullptr; }
 CustomDrawData *ConsoleUIController::calculateCustomDraw(IggyCustomDrawCallbackRegion *) { return nullptr; }
 void ConsoleUIController::endCustomDraw(IggyCustomDrawCallbackRegion *) {}
-void ConsoleUIController::setTileOrigin(S32 xPos, S32 yPos) { UIController::setTileOrigin(xPos, yPos); }
+void ConsoleUIController::setTileOrigin(S32, S32) {}
 GDrawTexture *ConsoleUIController::getSubstitutionTexture(int) { return nullptr; }
 void ConsoleUIController::destroySubstitutionTexture(void *, GDrawTexture *) {}
 
 int main(int, char **)
 {
+	Ensure3DSVideoInitialised();
+	Log3DS("[3DS] main: begin");
+	Log3DS("[3DS] init: starting core managers");
+
+	// Initialize core managers that are universally available
+	try
+	{
+		Log3DS("[3DS] init: InputManager.Initialise");
+		InputManager.Initialise(1, 3, MINECRAFT_ACTION_MAX, ACTION_MAX_MENU);
+		Log3DS("[3DS] init: InputManager.SetKeyRepeatRate");
+		InputManager.SetKeyRepeatRate(0.3f, 0.2f);
+
+		// Load media archive and initialize render
+		Log3DS("[3DS] init: app.loadMediaArchive");
+		app.loadMediaArchive();
+		Log3DS("[3DS] init: RenderManager.Initialise");
+		RenderManager.Initialise(nullptr, nullptr);
+		Log3DS("[3DS] init: app.loadStringTable");
+		app.loadStringTable();
+
+		Log3DS("[3DS] init: complete");
+	}
+	catch (const char* err)
+	{
+		printf("ERROR: Failed to initialize: %s\n", err);
+		Log3DS("[3DS] init: exception (const char*)");
+		return -1;
+	}
+	catch (...)
+	{
+		Log3DS("[3DS] init: exception (unknown)");
+		printf("ERROR: Failed to initialize Minecraft (unknown exception)\n");
+		return -1;
+	}
+
+	while (aptMainLoop())
+	{
+		hidScanInput();
+		u32 kDown = hidKeysDown();
+		if (kDown & KEY_START)
+		{
+			Log3DS("[3DS] main: KEY_START -> exit");
+			break;
+		}
+
+		// Frame update
+		try
+		{
+			RenderManager.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+		catch (...)
+		{
+			Log3DS("[3DS] frame: exception");
+			printf("ERROR: Game frame exception\n");
+			break;
+		}
+
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gspWaitForVBlank();
+	}
+
+	if (g_3dsVideoInitialised)
+	{
+		Log3DS("[3DS] main: gfxExit");
+		gfxExit();
+		g_3dsVideoInitialised = false;
+	}
+
 	return 0;
 }
 
@@ -164,8 +282,8 @@ void C_4JInput::CancelAllVerifyInProgress(void) {}
 
 void C4JRender::Tick() {}
 void C4JRender::UpdateGamma(unsigned short) {}
-bool C4JRender::IsWidescreen() { return true; }
-bool C4JRender::IsHiDef() { return true; }
+bool C4JRender::IsWidescreen() { return false; }
+bool C4JRender::IsHiDef() { return false; }
 void C4JRender::MatrixMode(int) {}
 void C4JRender::MatrixSetIdentity() {}
 void C4JRender::MatrixTranslate(float, float, float) {}
@@ -184,10 +302,24 @@ const float *C4JRender::MatrixGet(int)
 void C4JRender::Set_matrixDirty() {}
 void C4JRender::Initialise(ID3D11Device *, IDXGISwapChain *) {}
 void C4JRender::InitialiseContext() {}
-void C4JRender::StartFrame() {}
+void C4JRender::StartFrame() { Ensure3DSVideoInitialised(); }
 void C4JRender::DoScreenGrabOnNextPresent() {}
-void C4JRender::Present() {}
-void C4JRender::Clear(int, D3D11_RECT *) {}
+void C4JRender::Present()
+{
+	if (g_3dsVideoInitialised)
+	{
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gspWaitForVBlank();
+	}
+}
+void C4JRender::Clear(int, D3D11_RECT *)
+{
+	if (g_3dsVideoInitialised)
+	{
+		consoleClear();
+	}
+}
 void C4JRender::SetClearColour(const float[4]) {}
 void C4JRender::CaptureThumbnail(ImageFileBuffer *pngOut)
 {
