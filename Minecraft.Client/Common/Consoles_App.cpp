@@ -2872,7 +2872,7 @@ void CMinecraftApp::HandleXuiActions(void)
 
 					LoadingInputParams *loadingParams = new LoadingInputParams();
 					loadingParams->func = &UIScene_PauseMenu::SaveWorldThreadProc;
-					loadingParams->lpParam = static_cast<LPVOID>(false);
+					loadingParams->lpParam = nullptr;
 
 					// 4J-JEV - PS4: Fix for #5708 - [ONLINE] - If the user pulls their network cable out while saving the title will hang.
 					loadingParams->waitForThreadToDelete = true;
@@ -5575,7 +5575,7 @@ void CMinecraftApp::HandleDLC(DLCPack *pack)
 {
 	DWORD dwFilesProcessed = 0;
 #ifndef _XBOX
-#if defined(__PS3__) || defined(__ORBIS__) || defined(_WINDOWS64) || defined (__PSVITA__)
+#if defined(__PS3__) || defined(__ORBIS__) || defined(_WINDOWS64) || defined (__PSVITA__) || defined(__3DS__)
 	std::vector<std::string> dlcFilenames;
 #elif defined _DURANGO
 	std::vector<std::wstring> dlcFilenames;
@@ -7103,7 +7103,7 @@ HRESULT CMinecraftApp::RegisterDLCData(eDLCContentType eType, WCHAR *pwchBannerN
 	app.DebugPrintf("DLCInfo - type - %d, productID - %ls, name - %ls , banner - %ls, iconfig - %d, sort index - %d\n",eType,pwchProductId, pwchProductName,pwchBannerName, iConfig, uiSortIndex);
 	return hr;
 }
-#else
+#elif !defined(__3DS__)
 
 HRESULT CMinecraftApp::RegisterDLCData(char *pchDLCName, unsigned int uiSortIndex,char *pchImageURL)
 {
@@ -7148,11 +7148,14 @@ HRESULT CMinecraftApp::RegisterDLCData(char *pchDLCName, unsigned int uiSortInde
 
 	// 	if(ullOfferID_Trial!=0ll) DLCInfo_Trial[ullOfferID_Trial]=pDLCData;
 	// 	if(ullOfferID_Full!=0ll) DLCInfo_Full[ullOfferID_Full]=pDLCData;
-	// 	if(pFirstSkin[0]!=0) DLCInfo_SkinName[pFirstSkin]=ullOfferID_Full;
-
-	//	DLCInfo[ullOfferID_Trial]=pDLCData;
 
 	return hr;
+}
+#else
+// 3DS stub - DLC not supported
+HRESULT CMinecraftApp::RegisterDLCData(char *pchDLCName, unsigned int uiSortIndex,char *pchImageURL)
+{
+	return S_OK;  // No-op stub for 3DS
 }
 #endif
 

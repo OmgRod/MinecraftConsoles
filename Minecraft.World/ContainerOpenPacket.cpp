@@ -4,6 +4,19 @@
 #include "PacketListener.h"
 #include "ContainerOpenPacket.h"
 
+const int ContainerOpenPacket::WORKBENCH;
+const int ContainerOpenPacket::FURNACE;
+const int ContainerOpenPacket::TRAP;
+const int ContainerOpenPacket::ENCHANTMENT;
+const int ContainerOpenPacket::BREWING_STAND;
+const int ContainerOpenPacket::TRADER_NPC;
+const int ContainerOpenPacket::BEACON;
+const int ContainerOpenPacket::REPAIR_TABLE;
+const int ContainerOpenPacket::HOPPER;
+const int ContainerOpenPacket::DROPPER;
+const int ContainerOpenPacket::HORSE;
+const int ContainerOpenPacket::FIREWORKS;
+
 void ContainerOpenPacket::_init(int containerId, int type, const wstring &title, int size, bool customName, int entityId)
 {
 	this->containerId = containerId;

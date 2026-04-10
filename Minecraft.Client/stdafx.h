@@ -5,6 +5,12 @@
 
 #pragma once
 
+#include <cstdint>
+
+#ifdef __3DS__
+#include "..\include\Common\Compat3DS.h"
+#endif
+
 //#include <xtl.h>
 //#include <xboxmath.h>
 
@@ -70,6 +76,10 @@ using namespace DirectX;
 #include "PSVitaTypes.h"
 #include "PSVitaStubs.h"
 #include "PSVitaMaths.h"
+#elif defined __3DS__
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 #else
 #include <unordered_map>
 #include <unordered_set>
@@ -183,6 +193,11 @@ typedef XUID GameSessionUID;
 	#include "PSVita\4JLibs\inc\4J_Profile.h"
 	#include "PSVita\4JLibs\inc\4J_Render.h"
 	#include "PSVita\4JLibs\inc\4J_Storage.h"
+#elif defined __3DS__
+	#include "3DS\4JLibs\inc\4J_Input.h"
+	#include "3DS\4JLibs\inc\4J_Profile.h"
+	#include "3DS\4JLibs\inc\4J_Render.h"
+	#include "3DS\4JLibs\inc\4J_Storage.h"
 #else
 	#include "Orbis\4JLibs\inc\4J_Input.h"
 	#include "Orbis\4JLibs\inc\4J_Profile.h"
@@ -292,6 +307,17 @@ typedef XUID GameSessionUID;
 	#include "PSVita\Iggy\include\iggy.h"
 	#include "PSVita\Iggy\gdraw\gdraw_psp2.h"
 	#include "PSVita\PSVita_UIController.h"
+#elif defined __3DS__
+	#include "Windows64Media\strings.h"
+	#include "Windows64\Sentient\TelemetryEnum.h"
+	#include "Windows64\Sentient\SentientTelemetryCommon.h"
+	#include "Windows64\Sentient\MinecraftTelemetry.h"
+	#include "3DS\Sentient\DynamicConfigurations.h"
+	#include "Common\Audio\SoundEngine.h"
+	#include "Windows64\Iggy\include\iggy.h"
+	#include "Windows64\Iggy\gdraw\gdraw_d3d11.h"
+	#include "3DS\3DS_App.h"
+	#include "3DS\3DS_UIController.h"
 #else
 	#include "Orbis\Sentient\MinecraftTelemetry.h"
 	#include "OrbisMedia\strings.h"
@@ -334,7 +360,7 @@ typedef XUID GameSessionUID;
 
 #ifdef _XBOX
 //#include "Xbox\Xbox_App.h"
-#elif !defined(__PS3__)
+#elif !defined(__PS3__) && !defined(__3DS__)
 #include "extraX64client.h"
 #endif
 

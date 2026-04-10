@@ -1,6 +1,8 @@
 #pragma once
 
+#if defined(_WINDOWS64)
 #include <d3d11.h>
+#endif
 
 class PostProcesser
 {
@@ -11,6 +13,7 @@ public:
         return instance;
     }
 
+#if defined(_WINDOWS64)
     void Init();
     void Apply() const;
     void SetViewport(const D3D11_VIEWPORT& viewport);
@@ -19,11 +22,22 @@ public:
     void ApplyFromCopied() const; // Apply gamma using already-copied offscreen texture
     void Cleanup();
     void SetGamma(float gamma);
+#else
+    void Init() {}
+    void Apply() const {}
+    void SetViewport(const D3D11_VIEWPORT&) {}
+    void ResetViewport() {}
+    void CopyBackbuffer() {}
+    void ApplyFromCopied() const {}
+    void Cleanup() {}
+    void SetGamma(float gamma) { m_gamma = gamma; }
+#endif
     float GetGamma() const { return m_gamma; }
     PostProcesser(const PostProcesser&) = delete;
     PostProcesser& operator=(const PostProcesser&) = delete;
 
 private:
+#if defined(_WINDOWS64)
     PostProcesser();
     ~PostProcesser();
 
@@ -59,4 +73,10 @@ private:
 
     static const char* g_gammaVSCode;
     static const char* g_gammaPSCode;
+#else
+    PostProcesser() = default;
+    ~PostProcesser() = default;
+
+    float m_gamma = 1.0f;
+#endif
 };

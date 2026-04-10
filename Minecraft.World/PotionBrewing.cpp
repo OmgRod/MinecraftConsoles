@@ -5,6 +5,14 @@
 #include "SharedConstants.h"
 #include "PotionBrewing.h"
 
+const int PotionBrewing::POTION_ID_SPLASH_DAMAGE;
+const int PotionBrewing::POTION_ID_SPLASH_WEAKNESS;
+const int PotionBrewing::POTION_ID_SPLASH_SLOWNESS;
+const int PotionBrewing::POTION_ID_SPLASH_POISON;
+const int PotionBrewing::POTION_ID_HEAL;
+const int PotionBrewing::POTION_ID_SWIFTNESS;
+const int PotionBrewing::POTION_ID_FIRE_RESISTANCE;
+
 const int PotionBrewing::DEFAULT_APPEARANCES[] =
 {
 	IDS_POTION_PREFIX_MUNDANE,

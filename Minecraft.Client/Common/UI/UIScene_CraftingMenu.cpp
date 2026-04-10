@@ -532,7 +532,15 @@ void UIScene_CraftingMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 	float alpha = 1.0f;
 	bool decorations = true;
 	bool inventoryItem = false;
-	swscanf(static_cast<wchar_t *>(region->name),L"slot_%d",&slotId);
+	wstring regionName;
+	if (region->name != nullptr)
+	{
+		for (IggyUTF16 *p = region->name; *p != 0; ++p)
+		{
+			regionName.push_back(static_cast<wchar_t>(*p));
+		}
+	}
+	swscanf(regionName.c_str(),L"slot_%d",&slotId);
 	if (slotId == -1)
 	{
 		app.DebugPrintf("This is not the control we are looking for\n");

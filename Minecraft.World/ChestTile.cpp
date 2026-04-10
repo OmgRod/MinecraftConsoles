@@ -11,6 +11,9 @@
 #include "ChestTile.h"
 #include "Facing.h"
 
+const int ChestTile::TYPE_BASIC;
+const int ChestTile::TYPE_TRAP;
+
 ChestTile::ChestTile(int id, int type) : BaseEntityTile(id, Material::wood, isSolidRender() )
 {
 	random = new Random();

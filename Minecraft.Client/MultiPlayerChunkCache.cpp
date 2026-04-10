@@ -203,11 +203,19 @@ LevelChunk *MultiPlayerChunkCache::create(int x, int z)
 
 		LeaveCriticalSection(&m_csLoadCreate);
 
-#if ( defined _WIN64 || defined __LP64__ )
-		if( InterlockedCompareExchangeRelease64((LONG64 *)&cache[idx],(LONG64)chunk,(LONG64)lastChunk) == (LONG64)lastChunk )
-#else
-		if( InterlockedCompareExchangeRelease((LONG *)&cache[idx],(LONG)chunk,(LONG)lastChunk) == (LONG)lastChunk )
-#endif // _DURANGO
+		bool cacheSwapSucceeded = false;
+	#if defined(__3DS__)
+		if (cache[idx] == lastChunk)
+		{
+			cache[idx] = chunk;
+			cacheSwapSucceeded = true;
+		}
+	#elif ( defined _WIN64 || defined __LP64__ )
+		cacheSwapSucceeded = InterlockedCompareExchangeRelease64((LONG64 *)&cache[idx], (LONG64)chunk, (LONG64)lastChunk) == (LONG64)lastChunk;
+	#else
+		cacheSwapSucceeded = InterlockedCompareExchangeRelease((LONG *)&cache[idx], (LONG)chunk, (LONG)lastChunk) == (LONG)lastChunk;
+	#endif // _DURANGO
+		if(cacheSwapSucceeded)
 		{
 			// If we're sharing with the server, we'll need to calculate our heightmap now, which isn't shared. If we aren't sharing with the server,
 			// then this will be calculated when the chunk data arrives.

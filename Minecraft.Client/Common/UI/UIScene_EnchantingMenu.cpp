@@ -264,7 +264,15 @@ void UIScene_EnchantingMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 	else
 	{
 		int slotId = -1;
-		swscanf(static_cast<wchar_t *>(region->name),L"slot_Button%d",&slotId);
+		wstring regionName;
+		if (region->name != nullptr)
+		{
+			for (IggyUTF16 *p = region->name; *p != 0; ++p)
+			{
+				regionName.push_back(static_cast<wchar_t>(*p));
+			}
+		}
+		swscanf(regionName.c_str(),L"slot_Button%d",&slotId);
 		if(slotId >= 0)
 		{
 			// Setup GDraw, normal game render states and matrices

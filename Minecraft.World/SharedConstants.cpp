@@ -5,6 +5,7 @@
 
 const wstring SharedConstants::VERSION_STRING = L"1.6.4";
 const bool SharedConstants::TEXTURE_LIGHTING = true;
+const int SharedConstants::NETWORK_PROTOCOL_VERSION;
 
 wstring SharedConstants::readAcceptableChars()
 {

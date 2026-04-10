@@ -599,7 +599,15 @@ void UIScene_SkinSelectMenu::InputActionOK(unsigned int iPad)
 void UIScene_SkinSelectMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 {
 	int characterId = -1;
-	swscanf(static_cast<wchar_t *>(region->name),L"Character%d",&characterId);
+	wstring regionName;
+	if (region->name != nullptr)
+	{
+		for (IggyUTF16 *p = region->name; *p != 0; ++p)
+		{
+			regionName.push_back(static_cast<wchar_t>(*p));
+		}
+	}
+	swscanf(regionName.c_str(),L"Character%d",&characterId);
 	if (characterId == -1)
 	{
 		app.DebugPrintf("Invalid character to render found\n");
@@ -1129,11 +1137,15 @@ void UIScene_SkinSelectMenu::handlePackIndexChanged()
 
 std::wstring fakeWideToRealWide(const wchar_t* original)
 {
+	#if defined(__3DS__)
+	return original != nullptr ? std::wstring(original) : std::wstring();
+	#else
 	const char* name = reinterpret_cast<const char*>(original);
 	int len = MultiByteToWideChar(CP_UTF8, 0, name, -1, nullptr, 0);
 	std::wstring wName(len, 0);
 	MultiByteToWideChar(CP_UTF8, 0, name, -1, &wName[0], len);
 	return wName.c_str();
+	#endif
 }
 
 void UIScene_SkinSelectMenu::updatePackDisplay()

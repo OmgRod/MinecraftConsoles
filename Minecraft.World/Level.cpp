@@ -43,6 +43,7 @@
 
 DWORD Level::tlsIdx = TlsAlloc();
 DWORD Level::tlsIdxLightCache = TlsAlloc();
+const int Level::maxBuildHeight;
 
 // 4J : WESTY : Added for time played stats.
 #include "net.minecraft.stats.h"

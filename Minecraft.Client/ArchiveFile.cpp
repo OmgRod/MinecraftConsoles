@@ -117,6 +117,39 @@ byteArray ArchiveFile::getFile(const wstring &filename)
 
 		memcpy( out.data, m_cachedData + data->ptr, data->filesize );
 #else
+		#if defined(__3DS__)
+			FILE *archiveFile = fopen(wstringtofilename(m_sourcefile.getPath()), "rb");
+
+			if (archiveFile != nullptr)
+			{
+				if (fseek(archiveFile, static_cast<long>(data->ptr), SEEK_SET) == 0)
+				{
+					PBYTE pbData = new BYTE[data->filesize];
+					size_t bytesRead = fread(pbData, 1, data->filesize, archiveFile);
+
+					if (bytesRead == static_cast<size_t>(data->filesize))
+					{
+						out = byteArray(pbData, data->filesize);
+					}
+					else
+					{
+						delete[] pbData;
+						app.FatalLoadError();
+					}
+				}
+				else
+				{
+					app.FatalLoadError();
+				}
+
+				fclose(archiveFile);
+			}
+			else
+			{
+				app.DebugPrintf("bad archive file handle\n");
+				app.FatalLoadError();
+			}
+		#else
 
 #ifdef _UNICODE
 		HANDLE hfile = CreateFile(	m_sourcefile.getPath().c_str(), 
@@ -179,6 +212,7 @@ byteArray ArchiveFile::getFile(const wstring &filename)
 			app.DebugPrintf("bad hfile\n");
 			app.FatalLoadError();
 		}
+		#endif
 #endif
 
 		// Compressed filenames are preceeded with an asterisk.

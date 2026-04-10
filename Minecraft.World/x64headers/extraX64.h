@@ -19,6 +19,9 @@ const int XUSER_INDEX_FOCUS = 254;
 #ifdef __PSVITA__
 const int XUSER_MAX_COUNT = 1;
 const int MINECRAFT_NET_MAX_PLAYERS = 4;
+#elif defined(__3DS__)
+const int XUSER_MAX_COUNT = 4;
+const int MINECRAFT_NET_MAX_PLAYERS = 8;
 #else
 const int XUSER_MAX_COUNT = 4;
 const int MINECRAFT_NET_MAX_PLAYERS = 256;

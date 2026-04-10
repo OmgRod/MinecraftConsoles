@@ -6,6 +6,24 @@
 #include "PacketListener.h"
 #include "AddEntityPacket.h"
 
+const int AddEntityPacket::BOAT;
+const int AddEntityPacket::ITEM;
+const int AddEntityPacket::MINECART;
+const int AddEntityPacket::PRIMED_TNT;
+const int AddEntityPacket::ENDER_CRYSTAL;
+const int AddEntityPacket::ARROW;
+const int AddEntityPacket::SNOWBALL;
+const int AddEntityPacket::EGG;
+const int AddEntityPacket::THROWN_ENDERPEARL;
+const int AddEntityPacket::FALLING;
+const int AddEntityPacket::ITEM_FRAME;
+const int AddEntityPacket::EYEOFENDERSIGNAL;
+const int AddEntityPacket::THROWN_POTION;
+const int AddEntityPacket::THROWN_EXPBOTTLE;
+const int AddEntityPacket::FIREWORKS;
+const int AddEntityPacket::LEASH_KNOT;
+const int AddEntityPacket::FISH_HOOK;
+
 
 
 void AddEntityPacket::_init(shared_ptr<Entity> e, int type, int data, int xp, int yp, int zp, int yRotp, int xRotp)

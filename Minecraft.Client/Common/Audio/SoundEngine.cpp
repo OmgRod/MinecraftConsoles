@@ -14,6 +14,7 @@
 #include <audioout.h>
 #endif
 
+#if !defined(__3DS__)
 #include "..\..\Minecraft.Client\Windows64\Windows64_App.h"
 
 #include "stb_vorbis.h"
@@ -22,6 +23,7 @@
 #define MA_NO_WINMM
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
+#endif
 #include <vector>
 #include <memory>
 #include <mutex>
@@ -33,7 +35,7 @@
 #endif 
 
 // take out Orbis until they are done
-#if defined _XBOX 
+#if defined _XBOX || defined(__3DS__)
 
 SoundEngine::SoundEngine() {}
 void SoundEngine::init(Options *pOptions)

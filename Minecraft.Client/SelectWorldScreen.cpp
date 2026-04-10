@@ -279,19 +279,31 @@ void SelectWorldScreen::WorldSelectionList::renderItem(int i, int x, int y, int 
 
     wstring id = levelSummary->getLevelId();
 
-	ULARGE_INTEGER rawtime;
-	rawtime.QuadPart = levelSummary->getLastPlayed() * 10000; // Convert it from milliseconds back to FileTime
-
-	FILETIME timeasfiletime;
-	timeasfiletime.dwHighDateTime = rawtime.HighPart;
-	timeasfiletime.dwLowDateTime = rawtime.LowPart;
-
-	SYSTEMTIME time;
-	FileTimeToSystemTime( &timeasfiletime, &time );
-
 	wchar_t buffer[20];
-	// 4J Stu - Currently shows years as 4 digits, where java only showed 2
-	swprintf(buffer,20,L"%d/%d/%d %d:%02d",time.wDay, time.wMonth, time.wYear, time.wHour, time.wMinute); // 4J - TODO Localise this
+#if defined(__3DS__)
+    std::time_t lastPlayedSeconds = static_cast<std::time_t>(levelSummary->getLastPlayed() / 1000);
+    std::tm timeInfo = {};
+    std::tm *localTime = std::localtime(&lastPlayedSeconds);
+    if (localTime != nullptr)
+    {
+        timeInfo = *localTime;
+    }
+    // 4J Stu - Currently shows years as 4 digits, where java only showed 2
+    swprintf(buffer,20,L"%d/%d/%d %d:%02d",timeInfo.tm_mday, timeInfo.tm_mon + 1, timeInfo.tm_year + 1900, timeInfo.tm_hour, timeInfo.tm_min); // 4J - TODO Localise this
+#else
+    ULARGE_INTEGER rawtime;
+    rawtime.QuadPart = levelSummary->getLastPlayed() * 10000; // Convert it from milliseconds back to FileTime
+
+    FILETIME timeasfiletime;
+    timeasfiletime.dwHighDateTime = rawtime.HighPart;
+    timeasfiletime.dwLowDateTime = rawtime.LowPart;
+
+    SYSTEMTIME time;
+    FileTimeToSystemTime( &timeasfiletime, &time );
+
+    // 4J Stu - Currently shows years as 4 digits, where java only showed 2
+    swprintf(buffer,20,L"%d/%d/%d %d:%02d",time.wDay, time.wMonth, time.wYear, time.wHour, time.wMinute); // 4J - TODO Localise this
+#endif
     id = id + L" (" + buffer;
 
     int64_t size = levelSummary->getSizeOnDisk();

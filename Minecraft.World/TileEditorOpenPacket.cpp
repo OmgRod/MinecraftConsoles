@@ -3,6 +3,9 @@
 #include "PacketListener.h"
 #include "TileEditorOpenPacket.h"
 
+const int TileEditorOpenPacket::SIGN;
+const int TileEditorOpenPacket::COMMAND_BLOCK;
+
 TileEditorOpenPacket::TileEditorOpenPacket()
 {
 	editorType = 0;

@@ -12,6 +12,7 @@ const int GameEventPacket::STOP_RAINING = 2;
 const int GameEventPacket::CHANGE_GAME_MODE = 3; // 1.8.2
 const int GameEventPacket::WIN_GAME = 4; // 1.0.1
 const int GameEventPacket::DEMO_EVENT = 5;
+const int GameEventPacket::SUCCESSFUL_BOW_HIT;
 
 const int GameEventPacket::DEMO_PARAM_INTRO = 0;
 const int GameEventPacket::DEMO_PARAM_HINT_1 = 101;

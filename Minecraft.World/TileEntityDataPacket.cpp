@@ -4,6 +4,11 @@
 #include "PacketListener.h"
 #include "TileEntityDataPacket.h"
 
+const int TileEntityDataPacket::TYPE_MOB_SPAWNER;
+const int TileEntityDataPacket::TYPE_ADV_COMMAND;
+const int TileEntityDataPacket::TYPE_BEACON;
+const int TileEntityDataPacket::TYPE_SKULL;
+
 
 
 void TileEntityDataPacket::_init()

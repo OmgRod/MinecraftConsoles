@@ -84,8 +84,8 @@ Tag *Tag::readNamedTag(DataInput *dis)
 
 Tag *Tag::readNamedTag(DataInput *dis, int tagDepth)
 {
-    static __declspec(thread) int depth = 0;
-    static __declspec(thread) int totalTagCount = 0;
+	static thread_local int depth = 0;
+	static thread_local int totalTagCount = 0;
 
     if (depth == 0)
     {

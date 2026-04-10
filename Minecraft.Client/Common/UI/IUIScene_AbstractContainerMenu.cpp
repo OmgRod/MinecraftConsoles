@@ -1354,7 +1354,11 @@ bool IUIScene_AbstractContainerMenu::handleKeyDown(int iPad, int iAction, bool b
 
 			// Standard left click
 			buttonNum = 0;
-			if (g_KBMInput.IsKeyDown(VK_LSHIFT))
+			bool quickMoveModifierHeld = false;
+#if !defined(__3DS__)
+			quickMoveModifierHeld = g_KBMInput.IsKeyDown(VK_LSHIFT);
+#endif
+			if (quickMoveModifierHeld)
 			{
 				{
 					validKeyPress = TRUE;

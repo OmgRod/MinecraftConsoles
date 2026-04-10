@@ -2,6 +2,8 @@
 #include "PacketListener.h"
 #include "ClientCommandPacket.h"
 
+const int ClientCommandPacket::PERFORM_RESPAWN;
+
 ClientCommandPacket::ClientCommandPacket()
 {
 	action = 0;

@@ -15,6 +15,7 @@
 #define _SEKRIT
 #include "..\..\Durango\Miles\include\mss.h"
 #elif defined _WINDOWS64
+#elif defined __3DS__
 #else // PS4
 // 4J Stu - Temp define to get Miles to link, can likely be removed when we get a new version of Miles
 #define _SEKRIT2

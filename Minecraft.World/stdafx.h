@@ -17,6 +17,10 @@
 
 #include <cstdint>
 
+#ifdef __3DS__
+#include "..\include\Common\Compat3DS.h"
+#endif
+
 #ifdef _DURANGO
 #include <xdk.h>
 #include <wrl.h>
@@ -84,6 +88,10 @@ typedef XUID GameSessionUID;
 #include "PSVitaTypes.h"
 #include "PSVitaStubs.h"
 #include "PSVitaMaths.h"
+#elif defined __3DS__
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 #else
 #include <unordered_map>
 #include <unordered_set>
@@ -167,6 +175,11 @@ void MemSect(int sect);
 #include "..\Minecraft.Client\PSVita\4JLibs\inc\4J_Render.h"
 #include "..\Minecraft.Client\PSVita\4JLibs\inc\4J_Storage.h"
 #include "..\Minecraft.Client\PSVita\4JLibs\inc\4J_Input.h"
+#elif defined __3DS__
+#include "..\Minecraft.Client\3DS\4JLibs\inc\4J_Profile.h"
+#include "..\Minecraft.Client\3DS\4JLibs\inc\4J_Render.h"
+#include "..\Minecraft.Client\3DS\4JLibs\inc\4J_Storage.h"
+#include "..\Minecraft.Client\3DS\4JLibs\inc\4J_Input.h"
 #else
 #include "..\Minecraft.Client\Orbis\4JLibs\inc\4J_Profile.h"
 #include "..\Minecraft.Client\Orbis\4JLibs\inc\4J_Render.h"
@@ -225,6 +238,12 @@ void MemSect(int sect);
 #include "..\Minecraft.Client\PSVitaMedia\strings.h"		// TODO - create PSVita-specific version of this
 #include "..\Minecraft.Client\PSVita\Sentient\SentientManager.h"
 #include "..\Minecraft.Client\PSVita\Sentient\MinecraftTelemetry.h"
+#elif defined __3DS__
+#include "..\Minecraft.Client\Windows64Media\strings.h"
+#include "..\Minecraft.Client\Windows64\Sentient\TelemetryEnum.h"
+#include "..\Minecraft.Client\Windows64\Sentient\SentientTelemetryCommon.h"
+#include "..\Minecraft.Client\Windows64\Sentient\MinecraftTelemetry.h"
+#include "..\Minecraft.Client\3DS\3DS_App.h"
 #else
 #include "..\Minecraft.Client\Orbis\Orbis_App.h"
 #include "..\Minecraft.Client\OrbisMedia\strings.h"

@@ -4,6 +4,30 @@
 #include "..\..\..\Minecraft.World\StringHelpers.h"
 #include "..\..\..\Minecraft.World\JavaMath.h"
 
+namespace
+{
+	void toIggyUtf16(const wchar_t *input, size_t length, vector<IggyUTF16> &output)
+	{
+		output.clear();
+		output.reserve(length + 1);
+		for (size_t i = 0; i < length; ++i)
+		{
+			output.push_back(static_cast<IggyUTF16>(input[i]));
+		}
+		output.push_back(0);
+	}
+
+	void toWString(const IggyUTF16 *input, size_t length, wstring &output)
+	{
+		output.clear();
+		output.reserve(length);
+		for (size_t i = 0; i < length; ++i)
+		{
+			output.push_back(static_cast<wchar_t>(input[i]));
+		}
+	}
+}
+
 UIControl_Base::UIControl_Base()
 {
 	m_bLabelChanged = false;
@@ -36,8 +60,10 @@ void UIControl_Base::tick()
 		IggyDataValue value[1];
 		value[0].type = IGGY_DATATYPE_string_UTF16;
 		IggyStringUTF16 stringVal;
+		vector<IggyUTF16> labelUtf16;
+		toIggyUtf16(m_label.c_str(), m_label.length(), labelUtf16);
 
-		stringVal.string = (IggyUTF16*) m_label.c_str();
+		stringVal.string = labelUtf16.data();
 		stringVal.length = m_label.length();
 		value[0].string16 = stringVal;
 
@@ -60,8 +86,10 @@ void UIControl_Base::setLabel(UIString label, bool instant, bool force)
 		IggyDataValue value[1];
 		value[0].type = IGGY_DATATYPE_string_UTF16;
 		IggyStringUTF16 stringVal;
+		vector<IggyUTF16> labelUtf16;
+		toIggyUtf16(m_label.c_str(), m_label.length(), labelUtf16);
 
-		stringVal.string = (IggyUTF16*)m_label.c_str();
+		stringVal.string = labelUtf16.data();
 		stringVal.length = m_label.length();
 		value[0].string16 = stringVal;
 
@@ -76,7 +104,9 @@ const wchar_t* UIControl_Base::getLabel()
 
 	if(result.type == IGGY_DATATYPE_string_UTF16)
 	{
-		m_label = wstring((wchar_t *)result.string16.string, result.string16.length);
+		wstring labelValue;
+		toWString(result.string16.string, result.string16.length, labelValue);
+		m_label = labelValue;
 	}
 
 	return m_label.c_str();
@@ -87,11 +117,13 @@ void UIControl_Base::setAllPossibleLabels(int labelCount, wchar_t labels[][256])
 	IggyDataValue result;
 	IggyDataValue *value = new IggyDataValue[labelCount];
 	IggyStringUTF16 * stringVal = new IggyStringUTF16[labelCount];
+	vector<vector<IggyUTF16>> utf16Labels(labelCount);
 
 	for(unsigned int i = 0; i < labelCount; ++i)
 	{
-		stringVal[i].string = static_cast<IggyUTF16 *>(labels[i]);
-		stringVal[i].length = wcslen(labels[i]);
+		toIggyUtf16(labels[i], wcslen(labels[i]), utf16Labels[i]);
+		stringVal[i].string = utf16Labels[i].data();
+		stringVal[i].length = utf16Labels[i].empty() ? 0 : static_cast<U32>(utf16Labels[i].size() - 1);
 		value[i].type = IGGY_DATATYPE_string_UTF16;
 		value[i].string16 = stringVal[i];
 	}

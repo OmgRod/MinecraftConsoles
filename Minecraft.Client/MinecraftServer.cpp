@@ -1029,7 +1029,11 @@ bool MinecraftServer::loadLevel(LevelStorageSource *storageSource, const wstring
 
 	m_postUpdateTerminate = false;
 	m_postUpdateThread->SetProcessor(CPU_CORE_POST_PROCESSING);
+	#if defined(__3DS__)
+	m_postUpdateThread->SetPriority(THREAD_PRIORITY_HIGHEST);
+	#else
 	m_postUpdateThread->SetPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+	#endif
 	m_postUpdateThread->Run();
 
 	int64_t startTime = System::currentTimeMillis();
@@ -1392,7 +1396,9 @@ void MinecraftServer::saveGameRules()
 	{
 		byteArray ba;
 		ba.data = nullptr;
-		app.m_gameRules.saveGameRules( &ba.data, &ba.length );
+		UINT gameRuleDataSize = 0;
+		app.m_gameRules.saveGameRules( &ba.data, &gameRuleDataSize );
+		ba.length = gameRuleDataSize;
 
 		if (ba.data != nullptr)
 		{

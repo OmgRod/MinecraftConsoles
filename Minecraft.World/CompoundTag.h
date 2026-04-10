@@ -230,7 +230,7 @@ public:
 		return wstring( buf );
 	}
 
-	void print(char *prefix, ostream out)
+	void print(char *prefix, wostream out)
 	{
 		/*
 		Tag::print(prefix, out);

@@ -40,6 +40,13 @@ void Camera::prepare(shared_ptr<Player> player, bool mirror)
 
 	// Xbox conversion here... note that we don't bother getting the viewport as this is just working out how to get a (0,0,0) point in clip space to pass into the inverted
 	// combined model/view/projection matrix, so we just need to get this matrix and get its translation as an equivalent.
+    #if defined(__3DS__)
+    // 3DS build does not expose the DirectX-style matrix helpers used below.
+    // Default to no camera offset so gameplay can proceed on this platform.
+    xPlayerOffs = 0.0f;
+    yPlayerOffs = 0.0f;
+    zPlayerOffs = 0.0f;
+    #else
 	XMMATRIX _modelview, _proj, _final, _invert;
 	XMVECTOR _det;
 	XMFLOAT4 trans;
@@ -74,6 +81,7 @@ void Camera::prepare(shared_ptr<Player> player, bool mirror)
 	yPlayerOffs = trans.y / trans.w;
 	zPlayerOffs = trans.z / trans.w;
 #endif
+    #endif
 
     int flipCamera = mirror ? 1 : 0;
 

@@ -1813,11 +1813,20 @@ void RADLINK UIController::CustomDrawCallback(void *user_callback_data, Iggy *pl
 GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * user_callback_data , IggyUTF16 * texture_name , S32 * width , S32 * height , void * * destroy_callback_data )
 {
 	UIController *uiController = static_cast<UIController *>(user_callback_data);
-    auto it = uiController->m_substitutionTextures.find(texture_name);
+	wstring textureName;
+	if (texture_name != nullptr)
+	{
+		for (IggyUTF16 *p = texture_name; *p != 0; ++p)
+		{
+			textureName.push_back(static_cast<wchar_t>(*p));
+		}
+	}
+
+    auto it = uiController->m_substitutionTextures.find(textureName);
 
     if(it != uiController->m_substitutionTextures.end())
 	{
-		app.DebugPrintf("Found substitution texture %ls, with %d bytes\n", texture_name,it->second.length);
+		app.DebugPrintf("Found substitution texture %ls, with %d bytes\n", textureName.c_str(),it->second.length);
 
 		BufferedImage image(it->second.data, it->second.length);
 		if( image.getData() != nullptr )
@@ -1848,7 +1857,7 @@ GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * 
 
 			*destroy_callback_data = (void *)id;
 
-			app.DebugPrintf("Found substitution texture %ls (%d) - %dx%d\n", static_cast<wchar_t *>(texture_name), id, image.getWidth(), image.getHeight());
+			app.DebugPrintf("Found substitution texture %ls (%d) - %dx%d\n", textureName.c_str(), id, image.getWidth(), image.getHeight());
 			return ui.getSubstitutionTexture(id);
 		}
 		else
@@ -1858,7 +1867,7 @@ GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * 
 	}
 	else
 	{
-		app.DebugPrintf("Could not find substitution texture %ls\n", static_cast<wchar_t *>(texture_name));
+		app.DebugPrintf("Could not find substitution texture %ls\n", textureName.c_str());
 		return nullptr;
 	}
 }

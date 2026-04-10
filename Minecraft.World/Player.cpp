@@ -7,6 +7,7 @@
 // the derived class itself (which should own the virtual GetType function)
 
 #include "stdafx.h"
+#include <climits>
 #include "JavaMath.h"
 #include "net.minecraft.h"
 #include "net.minecraft.world.h"

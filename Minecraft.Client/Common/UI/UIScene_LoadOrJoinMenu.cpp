@@ -2689,7 +2689,9 @@ int UIScene_LoadOrJoinMenu::TexturePackDialogReturned(void *pParam,int iPad,C4JS
     if(result==C4JStorage::EMessage_ResultAccept)
     {
         // we need to enable background downloading for the DLC
+#if defined(_XBOX) || defined(_DURANGO)
         XBackgroundDownloadSetMode(XBACKGROUND_DOWNLOAD_MODE_ALWAYS_ALLOW);
+#endif
 #if defined __PSVITA__ || defined __PS3__ || defined __ORBIS__
 
 #ifdef __PSVITA__

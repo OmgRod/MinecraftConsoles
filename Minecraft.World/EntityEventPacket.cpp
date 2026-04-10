@@ -3,6 +3,9 @@
 #include "InputOutputStream.h"
 #include "PacketListener.h"
 #include "EntityEventPacket.h"
+#include "EntityEvent.h"
+
+const BYTE EntityEvent::USE_ITEM_COMPLETE;
 
 
 

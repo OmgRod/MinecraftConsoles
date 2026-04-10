@@ -290,7 +290,9 @@ void GameRuleManager::saveGameRules(byte **dOut, UINT *dSize)
 		{
 			// Write string table.
 			byteArray stba;
-			m_currentGameRuleDefinitions->getStringTable()->getData(&stba.data, &stba.length);
+			UINT tempLength = 0;
+			m_currentGameRuleDefinitions->getStringTable()->getData(&stba.data, &tempLength);
+			stba.length = tempLength;
 			compr_dos.writeInt( stba.length );
 			compr_dos.write( stba );
 

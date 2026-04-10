@@ -11,6 +11,8 @@
 
 #include "..\Minecraft.Client\Common\Leaderboards\LeaderboardManager.h"
 
+LeaderboardManager *LeaderboardManager::m_instance = nullptr;
+
 Stat** StatsCounter::LARGE_STATS[] = {
 	&Stats::walkOneM,
 	&Stats::swimOneM,

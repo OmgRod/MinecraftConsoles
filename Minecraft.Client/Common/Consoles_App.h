@@ -594,7 +594,7 @@ public:
 	MOJANG_DATA *GetMojangDataForXuid(PlayerUID xuid);
 	static HRESULT RegisterConfigValues(WCHAR *pType, int iValue);
 
-#if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__)
+#if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__) || defined(__3DS__)
 	HRESULT RegisterDLCData(char *pchDLCName, unsigned int uiSortIndex, char *pchImageURL);
 	bool GetDLCFullOfferIDForSkinID(const wstring &FirstSkin,ULONGLONG *pullVal);
 	DLC_INFO *GetDLCInfoForTrialOfferID(ULONGLONG ullOfferID_Trial);

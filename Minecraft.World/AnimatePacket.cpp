@@ -5,6 +5,12 @@
 #include "PacketListener.h"
 #include "AnimatePacket.h"
 
+const int AnimatePacket::SWING;
+const int AnimatePacket::WAKE_UP;
+const int AnimatePacket::EAT;
+const int AnimatePacket::CRITICAL_HIT;
+const int AnimatePacket::MAGIC_CRITICAL_HIT;
+
 
 
 AnimatePacket::AnimatePacket()

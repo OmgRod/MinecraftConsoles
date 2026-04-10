@@ -259,6 +259,7 @@ void UIScene_AbstractContainerMenu::render(S32 width, S32 height, C4JRender::eVi
 
 void UIScene_AbstractContainerMenu::getMouseToSWFScale(float &scaleX, float &scaleY)
 {
+#if defined(_WINDOWS64)
 	extern HWND g_hWnd;
 	RECT rc;
 	GetClientRect(g_hWnd, &rc);
@@ -276,6 +277,10 @@ void UIScene_AbstractContainerMenu::getMouseToSWFScale(float &scaleX, float &sca
 	float screenH = (float)ui.getScreenHeight();
 	scaleX = static_cast<float>(m_movieWidth) * screenW / (static_cast<float>(renderW) * static_cast<float>(winW));
 	scaleY = static_cast<float>(m_movieHeight) * screenH / (static_cast<float>(renderH) * static_cast<float>(winH));
+#else
+	scaleX = 1.0f;
+	scaleY = 1.0f;
+#endif
 }
 
 void UIScene_AbstractContainerMenu::customDraw(IggyCustomDrawCallbackRegion *region)
@@ -283,16 +288,25 @@ void UIScene_AbstractContainerMenu::customDraw(IggyCustomDrawCallbackRegion *reg
 	Minecraft *pMinecraft = Minecraft::GetInstance();
 	if(pMinecraft->localplayers[m_iPad] == nullptr || pMinecraft->localgameModes[m_iPad] == nullptr) return;
 
+	wstring regionName;
+	if (region->name != nullptr)
+	{
+		for (IggyUTF16 *p = region->name; *p != 0; ++p)
+		{
+			regionName.push_back(static_cast<wchar_t>(*p));
+		}
+	}
+
 	shared_ptr<ItemInstance> item = nullptr;
 	int slotId = -1;
-	if(wcscmp((wchar_t *)region->name,L"pointerIcon")==0)
+	if(regionName == L"pointerIcon")
 	{		
 		m_cacheSlotRenders = false;
 		item = pMinecraft->localplayers[m_iPad]->inventory->getCarried();
 	}
 	else
 	{
-		swscanf(static_cast<wchar_t *>(region->name),L"slot_%d",&slotId);
+		swscanf(regionName.c_str(),L"slot_%d",&slotId);
 		if (slotId == -1)
 		{
 			app.DebugPrintf("This is not the control we are looking for\n");

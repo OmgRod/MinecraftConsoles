@@ -160,6 +160,10 @@ void ConsoleUIController::setTileOrigin(S32 xPos, S32 yPos)
 
 GDrawTexture *ConsoleUIController::getSubstitutionTexture(int textureId)
 {
+	#if defined(__3DS__)
+	(void)textureId;
+	return nullptr;
+	#else
 	/* Create a wrapped texture from a shader resource view.
 	A wrapped texture can be used to let Iggy draw using the contents of a texture
 	you create and manage on your own. For example, you might render to this texture,
@@ -174,6 +178,7 @@ GDrawTexture *ConsoleUIController::getSubstitutionTexture(int textureId)
 	tex2d->GetDesc(&desc);
 	GDrawTexture *gdrawTex = gdraw_D3D11_WrappedTextureCreate(tex);
 	return gdrawTex;
+	#endif
 }
 
 void ConsoleUIController::destroySubstitutionTexture(void *destroyCallBackData, GDrawTexture *handle)

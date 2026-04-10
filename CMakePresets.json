@@ -62,6 +62,23 @@
       }
     },
     {
+      "name": "3ds",
+      "displayName": "3DS",
+      "inherits": "base",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/3ds.cmake",
+      "environment": {
+        "CMAKE_BUILD_PARALLEL_LEVEL": "1"
+      },
+      "cacheVariables": {
+        "PLATFORM_DEFINES": "__3DS__",
+        "PLATFORM_NAME": "3DS",
+        "MCLCE_3DS_BUILD_FULL": "ON",
+        "CMAKE_DISABLE_PRECOMPILE_HEADERS": "ON",
+        "CMAKE_C_FLAGS_DEBUG": "-g0",
+        "CMAKE_CXX_FLAGS_DEBUG": "-g0"
+      }
+    },
+    {
       "name": "xbox360",
       "displayName": "Xbox 360",
       "inherits": "base",
@@ -87,6 +104,9 @@
 
     { "name": "psvita-debug",      "displayName": "PSVita - Debug",      "configurePreset": "psvita",    "configuration": "Debug" },
     { "name": "psvita-release",    "displayName": "PSVita - Release",    "configurePreset": "psvita",    "configuration": "Release" },
+
+    { "name": "3ds-debug",         "displayName": "3DS - Debug",         "configurePreset": "3ds",       "configuration": "Debug" },
+    { "name": "3ds-release",       "displayName": "3DS - Release",       "configurePreset": "3ds",       "configuration": "Release" },
 
     { "name": "xbox360-debug",     "displayName": "Xbox 360 - Debug",    "configurePreset": "xbox360",   "configuration": "Debug" },
     { "name": "xbox360-release",   "displayName": "Xbox 360 - Release",  "configurePreset": "xbox360",   "configuration": "Release" }

@@ -170,11 +170,19 @@ LevelChunk *ServerChunkCache::create(int x, int z, bool asyncPostProcess)	// 4J 
 
 		LeaveCriticalSection(&m_csLoadCreate);
 
-#if ( defined _WIN64 || defined __LP64__ )
-		if( InterlockedCompareExchangeRelease64((LONG64 *)&cache[idx],(LONG64)chunk,(LONG64)lastChunk) == (LONG64)lastChunk )
-#else
-		if( InterlockedCompareExchangeRelease((LONG *)&cache[idx],(LONG)chunk,(LONG)lastChunk) == (LONG)lastChunk )
-#endif // _DURANGO
+		bool cacheSwapSucceeded = false;
+	#if defined(__3DS__)
+		if (cache[idx] == lastChunk)
+		{
+			cache[idx] = chunk;
+			cacheSwapSucceeded = true;
+		}
+	#elif ( defined _WIN64 || defined __LP64__ )
+		cacheSwapSucceeded = InterlockedCompareExchangeRelease64((LONG64 *)&cache[idx], (LONG64)chunk, (LONG64)lastChunk) == (LONG64)lastChunk;
+	#else
+		cacheSwapSucceeded = InterlockedCompareExchangeRelease((LONG *)&cache[idx], (LONG)chunk, (LONG)lastChunk) == (LONG)lastChunk;
+	#endif // _DURANGO
+		if(cacheSwapSucceeded)
 		{
 			// Successfully updated the cache
 			EnterCriticalSection(&m_csLoadCreate);

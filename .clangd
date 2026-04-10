@@ -1,0 +1,34 @@
+CompileFlags:
+    Add: [
+        -std=c++14,
+        -march=armv6k,
+        -D__3DS__,
+        -D_DEBUG,
+        -D_DEBUG_MENUS_ENABLED,
+        -D_LARGE_WORLDS,
+        -D_CRT_NON_CONFORMING_SWPRINTFS,
+        -D_CRT_SECURE_NO_WARNINGS,
+        -DCMAKE_INTDIR=\"Debug\",
+        -D_LIB,
+        -Wno-psabi,
+        -Wno-unused-includes,
+        -Wno-overflow
+    ]
+    Remove: [-m64, -W*]
+
+Index:
+    StandardLibrary: libcxx
+
+Diagnostics:
+    Suppress: [
+        unused-includes,
+        error_STL1000
+    ]
+    ClangTidy:
+        Disable: ["*"]
+
+Completion:
+    AllScopes: Yes
+
+Hover:
+    ShowAKA: true

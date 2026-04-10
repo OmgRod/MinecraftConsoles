@@ -14,6 +14,10 @@
 #define GAME_CREATIVE_TOUCHUPDATE_TIMER_TIME 100
 #endif
 
+const int IUIScene_CreativeMenu::TabSpec::rows;
+const int IUIScene_CreativeMenu::TabSpec::columns;
+const int IUIScene_CreativeMenu::TabSpec::MAX_SIZE;
+
 UIScene_CreativeMenu::UIScene_CreativeMenu(int iPad, void *_initData, UILayer *parentLayer) : UIScene_AbstractContainerMenu(iPad, parentLayer)
 {
 	// Setup all the Iggy references we need for this scene

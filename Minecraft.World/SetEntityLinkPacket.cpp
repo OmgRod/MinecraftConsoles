@@ -5,6 +5,9 @@
 #include "net.minecraft.world.entity.h"
 #include "SetEntityLinkPacket.h"
 
+const int SetEntityLinkPacket::LEASH;
+const int SetEntityLinkPacket::RIDING;
+
 
 
 SetEntityLinkPacket::SetEntityLinkPacket()

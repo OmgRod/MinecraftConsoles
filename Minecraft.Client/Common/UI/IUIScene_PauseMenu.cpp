@@ -424,7 +424,11 @@ void IUIScene_PauseMenu::_ExitWorld(LPVOID lpParameter)
 		if(lpParameter != nullptr )
 		{
 			// 4J-PB - check if we have lost connection to Live
-			if(ProfileManager.GetLiveConnectionStatus()!=XONLINE_S_LOGON_CONNECTION_ESTABLISHED )
+			bool lostLiveConnection = false;
+#ifdef _XBOX
+			lostLiveConnection = ProfileManager.GetLiveConnectionStatus() != XONLINE_S_LOGON_CONNECTION_ESTABLISHED;
+#endif
+			if(lostLiveConnection)
 			{
 				exitReasonStringId = IDS_CONNECTION_LOST_LIVE;
 			}

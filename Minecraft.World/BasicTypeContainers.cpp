@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "BasicTypeContainers.h"
 #include <limits>
+#include <cfloat>
 
 
 /* 4J Jev TODO,

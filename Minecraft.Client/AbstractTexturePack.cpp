@@ -375,6 +375,9 @@ void AbstractTexturePack::unloadUI()
 
 wstring AbstractTexturePack::getXuiRootPath()
 {
+	#if defined(__3DS__)
+	return L"media/";
+	#else
 	const ULONG_PTR c_ModuleHandle = (ULONG_PTR)GetModuleHandle(nullptr);
 
 	// Load new skin
@@ -383,6 +386,7 @@ wstring AbstractTexturePack::getXuiRootPath()
 
 	swprintf(szResourceLocator, LOCATOR_SIZE,L"section://%X,%ls#%ls",c_ModuleHandle,L"media", L"media/");
 	return szResourceLocator;
+	#endif
 }
 
 PBYTE AbstractTexturePack::getPackIcon(DWORD &dwImageBytes)
